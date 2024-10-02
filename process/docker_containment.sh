@@ -11,7 +11,7 @@ fi
 mkdir -p "$CONTAINER_NAME"
 docker rm -f "$CONTAINER_NAME" 2>/dev/null
 
-
+# Debugging outputs
 echo "Starting Docker container: $CONTAINER_NAME"
 docker run --name "$CONTAINER_NAME" -d -it --rm -v "$(pwd)/$CONTAINER_NAME:/malware" ubuntu:latest /bin/bash
 if [ $? -ne 0 ]; then
@@ -19,12 +19,14 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+echo "Copying malware to container"
 docker cp "$MALWARE_NAME" "$CONTAINER_NAME:/malware/$MALWARE_NAME"
 if [ $? -ne 0 ]; then
     echo "Failed to copy malware to container"
     exit 1
 fi
 
+echo "Executing malware in container"
 docker exec "$CONTAINER_NAME" /malware/"$MALWARE_NAME"
 if [ $? -ne 0 ]; then
     echo "Failed to execute malware in container"
