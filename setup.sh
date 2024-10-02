@@ -15,5 +15,4 @@ showProgressBar
 sudo apt install -y docker.io
 sudo systemctl start docker
 sudo systemctl enable docker
-
 echo "Docker has been installed and started."
