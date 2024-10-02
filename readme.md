@@ -30,35 +30,27 @@ This script now includes a download animation bar for the installation process.
 [install_requirements](install_requirements.sh)
 
 ### 5. Usage Instructions
-1. **Set up your directory structure**:
-   ```
-   mkdir -p VirusGuard/process
-   ```
 
-2. **Place the files accordingly**:
-   - Place `main.go` in `VirusGuard/`.
-   - Place `block_process.sh` and `docker_containment.sh` in `VirusGuard/process/`.
-   - Place `install_requirements.sh` in `VirusGuard/`.
 
-3. **Make the scripts executable**:
+1. **Make the scripts executable**:
    ```bash
    chmod +x process/block_process.sh
    chmod +x process/docker_containment.sh
    chmod +x install_requirements.sh
    ```
 
-4. **Run the installation script**:
+2. **Run the installation script**:
    ```bash
    ./install_requirements.sh
    ```
 
-5. **Compile the Go program**:
+3. **Compile the Go program**:
    ```bash
    cd VirusGuard
    go build -o VirusGuard main.go
    ```
 
-6. **Run the VirusGuard tool**:
+4. **Run the VirusGuard tool**:
    ```bash
    ./VirusGuard --malware <malware_name> --action <SignatureBlocking|ThreadInterruption|DockerContainment>
    ```
