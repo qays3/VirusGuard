@@ -5,7 +5,7 @@
 └── process/
     ├── block_process.sh
     └── docker_containment.sh
-└── setup.sh.sh
+└── setup.sh
 ```
 
 ### 1. `main.go`
@@ -24,14 +24,10 @@ This script also remains unchanged.
 [process/docker_containment](process/docker_containment.sh)
 
 
-### 4. `setup.sh.sh`
+### 4. `setup.sh`
 This script now includes a download animation bar for the installation process.
 
-<<<<<<< HEAD
-[setup.sh](setup.sh.sh)
-=======
-[install_requirements](install_requirements.sh)
->>>>>>> d24c10c5eac6fe94a65ea53f2234732cebd87f1f
+[install_requirements](setup.sh)
 
 ### 5. Usage Instructions
 
@@ -40,12 +36,12 @@ This script now includes a download animation bar for the installation process.
    ```bash
    chmod +x process/block_process.sh
    chmod +x process/docker_containment.sh
-   chmod +x setup.sh.sh
+   chmod +x setup.sh
    ```
 
 2. **Run the installation script**:
    ```bash
-   ./setup.sh.sh
+   ./setup.sh
    ```
 
 3. **Compile the Go program**:
