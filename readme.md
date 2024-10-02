@@ -5,60 +5,52 @@
 └── process/
     ├── block_process.sh
     └── docker_containment.sh
-└── install_requirements.sh
+└── setup.sh.sh
 ```
 
 ### 1. `main.go`
 This Go program includes an animated progress bar during the YARA scan process.
 
-[text](main.go)
+[main](main.go)
 
 ### 2. `process/block_process.sh`
 This script remains unchanged.
 
-[text](process/block_process.sh)
+[process/block_process](process/block_process.sh)
 
 ### 3. `process/docker_containment.sh`
 This script also remains unchanged.
 
-[text](process/docker_containment.sh)
+[process/docker_containment](process/docker_containment.sh)
 
 
-### 4. `install_requirements.sh`
+### 4. `setup.sh.sh`
 This script now includes a download animation bar for the installation process.
 
-[text](install_requirements.sh)
+[setup.sh](setup.sh.sh)
 
 ### 5. Usage Instructions
-1. **Set up your directory structure**:
-   ```
-   mkdir -p VirusGuard/process
-   ```
 
-2. **Place the files accordingly**:
-   - Place `main.go` in `VirusGuard/`.
-   - Place `block_process.sh` and `docker_containment.sh` in `VirusGuard/process/`.
-   - Place `install_requirements.sh` in `VirusGuard/`.
 
-3. **Make the scripts executable**:
+1. **Make the scripts executable**:
    ```bash
    chmod +x process/block_process.sh
    chmod +x process/docker_containment.sh
-   chmod +x install_requirements.sh
+   chmod +x setup.sh.sh
    ```
 
-4. **Run the installation script**:
+2. **Run the installation script**:
    ```bash
-   ./install_requirements.sh
+   ./setup.sh.sh
    ```
 
-5. **Compile the Go program**:
+3. **Compile the Go program**:
    ```bash
    cd VirusGuard
    go build -o VirusGuard main.go
    ```
 
-6. **Run the VirusGuard tool**:
+4. **Run the VirusGuard tool**:
    ```bash
    ./VirusGuard --malware <malware_name> --action <SignatureBlocking|ThreadInterruption|DockerContainment>
    ```
