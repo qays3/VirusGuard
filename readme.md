@@ -11,23 +11,23 @@
 ### 1. `main.go`
 This Go program includes an animated progress bar during the YARA scan process.
 
-[text](main.go)
+[main](main.go)
 
 ### 2. `process/block_process.sh`
 This script remains unchanged.
 
-[text](process/block_process.sh)
+[process/block_process](process/block_process.sh)
 
 ### 3. `process/docker_containment.sh`
 This script also remains unchanged.
 
-[text](process/docker_containment.sh)
+[process/docker_containment](process/docker_containment.sh)
 
 
 ### 4. `install_requirements.sh`
 This script now includes a download animation bar for the installation process.
 
-[text](install_requirements.sh)
+[install_requirements](install_requirements.sh)
 
 ### 5. Usage Instructions
 1. **Set up your directory structure**:
