@@ -27,7 +27,11 @@ This script also remains unchanged.
 ### 4. `setup.sh.sh`
 This script now includes a download animation bar for the installation process.
 
+<<<<<<< HEAD
 [setup.sh](setup.sh.sh)
+=======
+[install_requirements](install_requirements.sh)
+>>>>>>> d24c10c5eac6fe94a65ea53f2234732cebd87f1f
 
 ### 5. Usage Instructions
 
