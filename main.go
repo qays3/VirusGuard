@@ -10,8 +10,6 @@ import (
 	"time"
 )
 
-// qays
-
 func main() {
 	malwareName := flag.String("malware", "", "Name of the malware to scan and block")
 	action := flag.String("action", "", "Choose an action: SignatureBlocking, ThreadInterruption, DockerContainment")
@@ -49,7 +47,7 @@ func main() {
 }
 
 func signatureBlocking(malwareName string) {
-	ruleFiles := getAllYaraRules("./rules")
+	ruleFiles := getAllYaraRules("./YaraRules")
 	for _, ruleFile := range ruleFiles {
 		fmt.Printf("Scanning with YARA rule: %s\n", ruleFile)
 		showProgressBar("YARA scan in progress", 5)
