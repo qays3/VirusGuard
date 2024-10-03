@@ -52,12 +52,12 @@ This script now includes a download animation bar for the installation process.
 
 4. **Run the VirusGuard tool**:
    ```bash
-   ./VirusGuard --malware <malware_name> --action <SignatureBlocking|ThreadInterruption|DockerContainment>
+   sudo ./VirusGuard --malware <malware_name> --action <SignatureBlocking|ThreadInterruption|DockerContainment>
    ```
 
 ### Example Usage
 To run the tool, you can execute:
 ```bash
-./VirusGuard --malware mymalware.exe --action DockerContainment
+sudo ./VirusGuard --malware mymalware.exe --action DockerContainment
 ```
  
