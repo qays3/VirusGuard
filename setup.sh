@@ -15,4 +15,6 @@ showProgressBar
 sudo apt install -y docker.io
 sudo systemctl start docker
 sudo systemctl enable docker
+sudo apt-get install jq
+
 echo "Docker has been installed and started."
