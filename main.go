@@ -71,11 +71,18 @@ func threadInterruption(malwareName string) {
 }
 
 func dockerContainment(malwareName string) {
+
+	err := exec.Command("chmod", "+x", malwareName).Run()
+	if err != nil {
+		fmt.Printf("Error making malware executable: %s\n", err)
+		return
+	}
+
 	containerName := fmt.Sprintf("container_%s", malwareName)
 	cmd := exec.Command("bash", "-c", fmt.Sprintf("./process/docker_containment.sh %s %s", malwareName, containerName))
-	output, err := cmd.Output()
+	output, err := cmd.CombinedOutput()
 	if err != nil {
-		fmt.Printf("Error executing Docker containment: %s\n", err)
+		fmt.Printf("Error executing Docker containment: %s\nOutput: %s\n", err, string(output))
 		return
 	}
 	fmt.Printf("Docker containment result: %s\n", string(output))
