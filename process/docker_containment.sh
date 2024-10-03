@@ -11,7 +11,7 @@ fi
 mkdir -p "$CONTAINER_NAME"
 docker rm -f "$CONTAINER_NAME" 2>/dev/null
 
-# Debugging outputs
+
 echo "Starting Docker container: $CONTAINER_NAME"
 docker run --name "$CONTAINER_NAME" -d -it --rm -v "$(pwd)/$CONTAINER_NAME:/malware" ubuntu:latest /bin/bash
 if [ $? -ne 0 ]; then
