@@ -14,7 +14,7 @@ import (
 
 func main() {
 	malwareName := flag.String("malware", "", "Name of the malware to scan and block")
-	action := flag.String("action", "", "Choose an action: YaraScan, ThreadInterruption, DockerContainment, BlockSignature")
+	action := flag.String("action", "", "Choose an action: YaraScan, TerminateProcess, DockerContainment, BlockSignature")
 	block := flag.Bool("block", false, "Block the malware")
 	unblock := flag.Bool("unblock", false, "Unblock the malware")
 	help := flag.Bool("help", false, "Display help for VirusGuard")
@@ -27,7 +27,7 @@ func main() {
 		fmt.Println("  --malware <name>         Name of the malware file to handle")
 		fmt.Println("  --action <type>          Type of action to perform:")
 		fmt.Println("                           YaraScan: Scan the malware with YARA rules.")
-		fmt.Println("                           ThreadInterruption: Terminate all running processes associated with the malware.")
+		fmt.Println("                           TerminateProcess: Terminate all running processes associated with the malware.")
 		fmt.Println("                           DockerContainment: Run the malware in a Docker container to isolate its execution.")
 		fmt.Println("                           BlockSignature: Block the malware while under analysis.")
 		fmt.Println("  --block                  Block the specified malware.")
@@ -44,8 +44,8 @@ func main() {
 	switch strings.ToLower(*action) {
 	case "yarascan":
 		yaraScan(*malwareName)
-	case "threadinterruption":
-		threadInterruption(*malwareName)
+	case "TerminateProcess":
+		TerminateProcess(*malwareName)
 	case "dockercontainment":
 		dockerContainment(*malwareName)
 	case "blocksignature":
@@ -76,7 +76,7 @@ func yaraScan(malwareName string) {
 	}
 }
 
-func threadInterruption(malwareName string) {
+func TerminateProcess(malwareName string) {
 	cmd := exec.Command("bash", "-c", fmt.Sprintf("./process/terminate_process.sh %s", malwareName))
 	output, err := cmd.Output()
 	if err != nil {

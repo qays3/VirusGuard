@@ -54,7 +54,7 @@ This Go program includes an animated progress bar during the YARA scan process.
 
 4. **Run the VirusGuard tool**:
    ```bash
-   sudo ./VirusGuard --malware <malware_name> --action <SignatureBlocking|ThreadInterruption|DockerContainment>
+   sudo ./VirusGuard --malware <malware_name> --action <SignatureBlocking|TerminateProcess|DockerContainment>
    ```
 
 ### Example Usage
