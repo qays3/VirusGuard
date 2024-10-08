@@ -9,8 +9,39 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 )
+
+type Logger struct {
+	mu      sync.Mutex
+	logFile *os.File
+}
+
+func AddLogger(filePath string) (*Logger, error) {
+	if err := os.MkdirAll("logs", os.ModePerm); err != nil {
+		return nil, err
+	}
+	logFile, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+	if err != nil {
+		return nil, err
+	}
+	return &Logger{logFile: logFile}, nil
+}
+
+func (l *Logger) Log(message string) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	timestamp := time.Now().Format("2006-01-02 15:04:05")
+	logMessage := fmt.Sprintf("%s: %s\n", timestamp, message)
+	if _, err := l.logFile.WriteString(logMessage); err != nil {
+		fmt.Println("Error writing to log file:", err)
+	}
+}
+
+func (l *Logger) Close() {
+	l.logFile.Close()
+}
 
 func main() {
 	malwareName := flag.String("malware", "", "Name of the malware to scan and block")
@@ -21,7 +52,15 @@ func main() {
 
 	flag.Parse()
 
+	logger, err := AddLogger("logs/application.log")
+	if err != nil {
+		fmt.Println("Error initializing logger:", err)
+		return
+	}
+	defer logger.Close()
+
 	if *help {
+		logger.Log("Displayed help")
 		fmt.Println("Usage: VirusGuard [OPTIONS]")
 		fmt.Println("Options:")
 		fmt.Println("  --malware <name>         Name of the malware file to handle")
@@ -37,32 +76,35 @@ func main() {
 	}
 
 	if *malwareName == "" || *action == "" {
+		logger.Log("Error: both --malware and --action options must be provided")
 		fmt.Println("Error: both --malware and --action options must be provided")
 		return
 	}
 
 	switch strings.ToLower(*action) {
 	case "yarascan":
-		yaraScan(*malwareName)
-	case "TerminateProcess":
-		TerminateProcess(*malwareName)
+		yaraScan(*malwareName, logger)
+	case "terminateprocess":
+		TerminateProcess(*malwareName, logger)
 	case "dockercontainment":
-		dockerContainment(*malwareName)
+		dockerContainment(*malwareName, logger)
 	case "blocksignature":
 		if *block {
 			signature := calculateSignature(*malwareName)
-			blockSignature(*malwareName, signature)
+			blockSignature(*malwareName, signature, logger)
 		} else if *unblock {
-			unblockSignature(*malwareName)
+			unblockSignature(*malwareName, logger)
 		} else {
+			logger.Log("Error: Specify --block or --unblock with --action BlockSignature")
 			fmt.Println("Error: Specify --block or --unblock with --action BlockSignature")
 		}
 	default:
+		logger.Log("Invalid action specified. Use --help to see the available options.")
 		fmt.Println("Invalid action specified. Use --help to see the available options.")
 	}
 }
 
-func yaraScan(malwareName string) {
+func yaraScan(malwareName string, logger *Logger) {
 	ruleFiles := getAllYaraRules("./YaraRules")
 	for _, ruleFile := range ruleFiles {
 		fmt.Printf("Scanning with YARA rule: %s\n", ruleFile)
@@ -70,25 +112,30 @@ func yaraScan(malwareName string) {
 		cmd := exec.Command("bash", "-c", fmt.Sprintf("yara %s %s", ruleFile, malwareName))
 		output, err := cmd.Output()
 		if err != nil {
+			logger.Log(fmt.Sprintf("Error executing YARA scan for %s: %s", ruleFile, err))
 			fmt.Printf("Error executing YARA scan for %s: %s\n", ruleFile, err)
 		}
+		logger.Log(fmt.Sprintf("YARA scan result for %s: %s", ruleFile, string(output)))
 		fmt.Printf("YARA scan result for %s: %s\n", ruleFile, string(output))
 	}
 }
 
-func TerminateProcess(malwareName string) {
+func TerminateProcess(malwareName string, logger *Logger) {
 	cmd := exec.Command("bash", "-c", fmt.Sprintf("./process/terminate_process.sh %s", malwareName))
 	output, err := cmd.Output()
 	if err != nil {
+		logger.Log(fmt.Sprintf("Error executing thread interruption: %s", err))
 		fmt.Printf("Error executing thread interruption: %s\n", err)
 		return
 	}
+	logger.Log(fmt.Sprintf("Thread interruption result: %s", string(output)))
 	fmt.Printf("Thread interruption result: %s\n", string(output))
 }
 
-func dockerContainment(malwareName string) {
+func dockerContainment(malwareName string, logger *Logger) {
 	err := exec.Command("chmod", "+x", malwareName).Run()
 	if err != nil {
+		logger.Log(fmt.Sprintf("Error making malware executable: %s", err))
 		fmt.Printf("Error making malware executable: %s\n", err)
 		return
 	}
@@ -97,9 +144,11 @@ func dockerContainment(malwareName string) {
 	cmd := exec.Command("bash", "-c", fmt.Sprintf("./process/docker_containment.sh %s %s", malwareName, containerName))
 	output, err := cmd.CombinedOutput()
 	if err != nil {
+		logger.Log(fmt.Sprintf("Error executing Docker containment: %s\nOutput: %s", err, string(output)))
 		fmt.Printf("Error executing Docker containment: %s\nOutput: %s\n", err, string(output))
 		return
 	}
+	logger.Log(fmt.Sprintf("Docker containment result: %s", string(output)))
 	fmt.Printf("Docker containment result: %s\n", string(output))
 }
 
@@ -116,22 +165,26 @@ func calculateSignature(malwareName string) string {
 	return hex.EncodeToString(hash.Sum(nil))
 }
 
-func blockSignature(malwareName, signature string) {
+func blockSignature(malwareName, signature string, logger *Logger) {
 	blockCmd := exec.Command("bash", "-c", fmt.Sprintf("nohup ./process/signature_control.sh %s %s %s &", malwareName, signature, "block"))
 	if err := blockCmd.Start(); err != nil {
+		logger.Log(fmt.Sprintf("Error starting block signature: %s", err))
 		fmt.Printf("Error starting block signature: %s\n", err)
 		return
 	}
+	logger.Log(fmt.Sprintf("Blocking malware: %s is under analysis with signature: %s. Use --unblock to stop.", malwareName, signature))
 	fmt.Printf("Blocking malware: %s is under analysis with signature: %s. Use --unblock to stop.\n", malwareName, signature)
 }
 
-func unblockSignature(malwareName string) {
+func unblockSignature(malwareName string, logger *Logger) {
 	unblockCmd := exec.Command("bash", "-c", fmt.Sprintf("./process/signature_control.sh %s unblock", malwareName))
 	output, err := unblockCmd.Output()
 	if err != nil {
+		logger.Log(fmt.Sprintf("Error executing unblock signature: %s", err))
 		fmt.Printf("Error executing unblock signature: %s\n", err)
 		return
 	}
+	logger.Log(fmt.Sprintf("Unblock result: %s", string(output)))
 	fmt.Printf("Unblock result: %s\n", string(output))
 }
 
