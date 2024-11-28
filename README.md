@@ -49,7 +49,68 @@
 
 The core of VirusGuard, containing the processes that handle malware scanning, YARA scanning, process termination, Docker containment, and signature blocking/unblocking. The logger tracks relevant events and errors, making it easier to monitor activities and threats.
 
-[main.go](main.go)
+```go
+func main() {
+	malwareName := flag.String("malware", "", "Name of the malware to scan and block")
+	action := flag.String("action", "", "Choose an action: YaraScan, TerminateProcess, DockerContainment, BlockSignature")
+	block := flag.Bool("block", false, "Block the malware")
+	unblock := flag.Bool("unblock", false, "Unblock the malware")
+	help := flag.Bool("help", false, "Display help for VirusGuard")
+
+	flag.Parse()
+
+	logger, err := AddLogger("logs/application.log")
+	if err != nil {
+		fmt.Println("Error initializing logger:", err)
+		return
+	}
+	defer logger.Close()
+
+	if *help {
+		logger.Log("Displayed help")
+		fmt.Println("Usage: VirusGuard [OPTIONS]")
+		fmt.Println("Options:")
+		fmt.Println("  --malware <name>         Name of the malware file to handle")
+		fmt.Println("  --action <type>          Type of action to perform:")
+		fmt.Println("                           YaraScan: Scan the malware with YARA rules.")
+		fmt.Println("                           TerminateProcess: Terminate all running processes associated with the malware.")
+		fmt.Println("                           DockerContainment: Run the malware in a Docker container to isolate its execution.")
+		fmt.Println("                           BlockSignature: Block the malware while under analysis.")
+		fmt.Println("  --block                  Block the specified malware.")
+		fmt.Println("  --unblock                Unblock the specified malware.")
+		fmt.Println("  --help                   Show this help message")
+		return
+	}
+
+	if *malwareName == "" || *action == "" {
+		logger.Log("Error: both --malware and --action options must be provided")
+		fmt.Println("Error: both --malware and --action options must be provided")
+		return
+	}
+
+	switch strings.ToLower(*action) {
+	case "yarascan":
+		yaraScan(*malwareName, logger)
+	case "terminateprocess":
+		TerminateProcess(*malwareName, logger)
+	case "dockercontainment":
+		dockerContainment(*malwareName, logger)
+	case "blocksignature":
+		if *block {
+			signature := calculateSignature(*malwareName)
+			blockSignature(*malwareName, signature, logger)
+		} else if *unblock {
+			unblockSignature(*malwareName, logger)
+		} else {
+			logger.Log("Error: Specify --block or --unblock with --action BlockSignature")
+			fmt.Println("Error: Specify --block or --unblock with --action BlockSignature")
+		}
+	default:
+		logger.Log("Invalid action specified. Use --help to see the available options.")
+		fmt.Println("Invalid action specified. Use --help to see the available options.")
+	}
+}
+```
 
 ---
 
